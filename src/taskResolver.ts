@@ -25,35 +25,37 @@ export class TaskResolver {
 
     return task;
   }
-
-  @Mutation(() => Task)
-  async completeTask(
-    @Arg("description") description: string,
-    @Arg("title") title: string
-  ): Promise<Task> {
-    const task = await Task.create({ title, description }).save();
-
-    return task;
-  }
-
   @Mutation(() => Task)
   async editTask(
     @Arg("id") id: number,
-    @Arg("description", { nullable: true }) description: string
-  ): Promise<Task | null> {
-    const task = await Task.findOne({ where: { id: id } });
-    if (!task) {
-      return null;
+    @Arg("description") description: string,
+    @Arg("title") title: string
+  ): Promise<Task> {
+    const result = await Task.update(id, {
+      title: title,
+      description: description,
+    });
+    const updatedTask = await Task.findOne({ where: { id: id } });
+    if (!updatedTask) {
+      throw new Error("Task not found");
     }
-    if (description) {
-      task.description = description;
-      await task.save();
-    }
-    return task;
+    return updatedTask;
   }
 
   @Mutation(() => Boolean)
-  async deleteTask(@Arg("id") id: number): Promise<boolean> {
+  async markTaskComplete(@Arg("id") id: number): Promise<Boolean> {
+    const result = await Task.update(id, { completed: true });
+    return result.affected === 1;
+  }
+
+  @Mutation(() => Boolean)
+  async markTaskIncomplete(@Arg("id") id: number): Promise<Boolean> {
+    const result = await Task.update(id, { completed: false });
+    return result.affected === 1;
+  }
+
+  @Mutation(() => Boolean)
+  async deleteTask(@Arg("id") id: number): Promise<Boolean> {
     const task = await Task.findOne({ where: { id: id } });
     if (!task) return false;
 
