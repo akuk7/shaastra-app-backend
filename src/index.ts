@@ -26,8 +26,8 @@ const dataSource = new DataSource({
   host: "localhost",
   port: 5432,
   username: "postgres",
-  password: "Amjad@2002",
-  database: "taskdb",
+  password: "password",
+  database: "database",
   entities: [Task],
   synchronize: true,
 });
